@@ -1,0 +1,58 @@
+{% extends 'base.html' %}
+{% block content %}
+<h2>¡Bienvenido a Misión Eco-Reto!</h2>
+<p style="color: #64748b; margin-bottom: 25px;">Registra, consulta y comparte las acciones que ayudan al planeta.</p>
+
+<div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 30px;">
+    <div class="card" style="border-left: 5px solid #1e3a8a;">
+        <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Acciones registradas</span>
+        <h3 style="color: #1e3a8a; font-size: 1.8rem; margin-top: 5px;">{{ total_acciones }}</h3>
+    </div>
+    <div class="card" style="border-left: 5px solid #3b82f6;">
+        <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Litros de agua ahorrados</span>
+        <h3 style="color: #3b82f6; font-size: 1.8rem; margin-top: 5px;">350 L</h3>
+    </div>
+    <div class="card" style="border-left: 5px solid #60a5fa;">
+        <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">Materiales reciclados</span>
+        <h3 style="color: #2563eb; font-size: 1.8rem; margin-top: 5px;">18</h3>
+    </div>
+    <div class="card" style="border-left: 5px solid #93c5fd;">
+        <span style="font-size: 0.8rem; color: #64748b; font-weight: 600;">CO₂ evitado</span>
+        <h3 style="color: #1d4ed8; font-size: 1.8rem; margin-top: 5px;">45 kg</h3>
+    </div>
+</div>
+
+<div class="card">
+    <h3 style="color: #1e3a8a; margin-bottom: 10px;">Mis acciones registradas</h3>
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Tipo</th>
+                <th>Descripción</th>
+                <th>Impacto</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for item in acciones %}
+            <tr>
+                <td><b>#{{ item.id }}</b></td>
+                <td>{{ item.fecha }}</td>
+                <td><span class="badge badge-azul">{{ item.tipo }}</span></td>
+                <td>{{ item.descripcion }}</td>
+                <td>{{ item.impacto }}</td>
+                <td>
+                    <a href="{{ url_for('detalle_accion', id=item.id) }}" class="btn btn-blue" style="padding: 5px 10px; font-size: 0.8rem;"> Ver</a>
+                    <a href="{{ url_for('editar_accion', id=item.id) }}" class="btn btn-dark" style="padding: 5px 10px; font-size: 0.8rem;"> Editar</a>
+                    <form action="{{ url_for('eliminar_accion', id=item.id) }}" method="POST" style="display:inline;">
+                        <button class="btn btn-red" style="padding: 5px 10px; font-size: 0.8rem;"></button>
+                    </form>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

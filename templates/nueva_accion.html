@@ -1,0 +1,23 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #1e3a8a;"> Nueva acción ecológica</h2>
+    <p style="color: #64748b; font-size: 0.85rem; margin-bottom: 20px;">Registra una nueva acción que ayude al planeta.</p>
+    <form method="POST">
+        <label>Tipo de acción</label>
+        <select name="tipo">
+            <option value="Reciclaje">Reciclaje</option>
+            <option value="Ahorro de agua">Ahorro de agua</option>
+            <option value="Transporte">Transporte</option>
+            <option value="Energía">Energía</option>
+        </select>
+        <label>Descripción</label>
+        <input type="text" name="descripcion" placeholder="Escribe qué hiciste..." required>
+        <label>Fecha</label>
+        <input type="date" name="fecha" required>
+        <label>Impacto (kg, litros, kWh, etc.)</label>
+        <input type="text" name="impacto" placeholder="Ej. 5 kg, 50 litros, 2 kWh..." required>
+        <button type="submit" class="btn btn-blue" style="width: 100%; margin-top: 10px;">Guardar acción</button>
+    </form>
+</div>
+{% endblock %}

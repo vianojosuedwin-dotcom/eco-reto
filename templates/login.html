@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Iniciar Sesión - Misión Eco-Reto</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        /* Estilos propios y rápidos exclusivos para la tarjeta de login centrada */
+        body { background: #f0f4f8; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 16px; box-shadow: 0 10px 25px rgba(30, 58, 138, 0.08); width: 100%; max-width: 400px; border-top: 5px solid #3b82f6; }
+        .login-card h2 { color: #1e3a8a; margin-bottom: 8px; font-size: 1.5rem; text-align: center; }
+        .login-card p { color: #64748b; font-size: 0.85rem; text-align: center; margin-bottom: 25px; }
+        .btn-submit { width: 100%; padding: 12px; background: #1e3a8a; color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
+        .btn-submit:hover { background: #1d4ed8; }
+        .error { background: #fee2e2; color: #991b1b; padding: 10px; border-radius: 6px; font-size: 0.8rem; margin-bottom: 15px; text-align: center; }
+    </style>
+</head>
+<body>
+    <div class="login-card">
+        <h2> Misión Eco-Reto</h2>
+        <p>Ingresa para registrar tus acciones ecológicas.</p>
+        {% with messages = get_flashed_messages() %}
+          {% if messages %}
+            <div class="error">{{ messages[0] }}</div>
+          {% endif %}
+        {% endwith %}
+        <form method="POST">
+            <label>Usuario</label>
+            <input type="text" name="usuario" placeholder="Ej. estudiante" required>
+            <label>Contraseña</label>
+            <input type="password" name="password" placeholder="••••••••" required>
+            <button type="submit" class="btn-submit">Entrar</button>
+        </form>
+    </div>
+</body>
+</html>

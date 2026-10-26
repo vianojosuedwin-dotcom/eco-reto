@@ -1,0 +1,12 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #1e3a8a;"> Detalles de la acción #{{ accion.id }}</h2>
+    <hr style="border: 0; border-top: 1px solid #e2e8f0; margin: 15px 0;">
+    <p><b>Tipo:</b> <span class="badge badge-azul">{{ accion.tipo }}</span></p><br>
+    <p><b>Descripción:</b> {{ accion.descripcion }}</p><br>
+    <p><b>Fecha:</b> {{ accion.fecha }}</p><br>
+    <p><b>Impacto ambiental:</b> {{ accion.impacto }}</p><br>
+    <a href="{{ url_for('dashboard') }}" class="btn btn-blue">Volver al inicio</a>
+</div>
+{% endblock %}

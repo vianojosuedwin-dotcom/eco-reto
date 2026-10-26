@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Misión Eco-Reto</title>
+    <!-- Enlace al archivo CSS externo -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="sidebar">
+        <h2> Misión Eco-Reto</h2>
+        <a href="{{ url_for('dashboard') }}" class="active"> Inicio</a>
+        <a href="{{ url_for('dashboard') }}"> Mis acciones</a>
+        <a href="{{ url_for('nueva_accion') }}"> Nueva acción</a>
+        <a href="#">Estadísticas</a>
+        <a href="{{ url_for('logout') }}" style="margin-top: auto; color: #fca5a5;">🚪 Cerrar sesión</a>
+    </div>
+    <div class="main-content">
+        <div class="header">
+            <div></div>
+            <div class="user-info">Hola, {{ session.get('usuario', 'Estudiante') }}</div>
+        </div>
+        {% block content %}{% endblock %}
+    </div>
+</body>
+</html>

@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #1e3a8a;"> Editar acción</h2>
+    <form method="POST">
+        <label>Tipo de acción</label>
+        <select name="tipo">
+            <option value="Reciclaje" {% if accion.tipo == 'Reciclaje' %}selected{% endif %}>Reciclaje</option>
+            <option value="Ahorro de agua" {% if accion.tipo == 'Ahorro de agua' %}selected{% endif %}>Ahorro de agua</option>
+            <option value="Transporte" {% if accion.tipo == 'Transporte' %}selected{% endif %}>Transporte</option>
+            <option value="Energía" {% if accion.tipo == 'Energía' %}selected{% endif %}>Energía</option>
+        </select>
+        <label>Descripción</label>
+        <input type="text" name="descripcion" value="{{ accion.descripcion }}" required>
+        <label>Fecha</label>
+        <input type="date" name="fecha" value="{{ accion.fecha }}" required>
+        <label>Impacto</label>
+        <input type="text" name="impacto" value="{{ accion.impacto }}" required>
+        <button type="submit" class="btn btn-blue" style="width: 100%; margin-top: 10px;">Actualizar acción</button>
+    </form>
+</div>
+{% endblock %}
