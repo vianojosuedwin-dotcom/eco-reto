@@ -8,10 +8,8 @@ app.secret_key = 'clave_secreta_azul'
 
 def get_db_connection():
     database_url = os.environ.get('DATABASE_URL')
-    # Se conecta a Neon (PostgreSQL) usando DictCursor para mantener la compatibilidad con nombres de columnas
     conn = psycopg2.connect(database_url, sslmode='require', cursor_factory=psycopg2.extras.DictCursor)
     return conn
-
 
 def init_db():
     conn = get_db_connection()
@@ -41,11 +39,10 @@ def init_db():
         cur.execute("INSERT INTO usuarios (usuario, password) VALUES ('estudiante', '1234')")
         conn.commit()
     except Exception:
-        conn.rollback()  # Necesario en PostgreSQL si ocurre un conflicto de unicidad
+        conn.rollback()
     finally:
         cur.close()
         conn.close()
-
 
 @app.route('/', methods=['GET', 'POST'])
 def login():
@@ -68,7 +65,6 @@ def login():
             flash('Usuario o contraseña incorrectos')
             
     return render_template('login.html')
-
 
 @app.route('/dashboard')
 def dashboard():
