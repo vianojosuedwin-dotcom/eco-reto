@@ -1,27 +1,32 @@
+import os
+import psycopg2
+import psycopg2.extras
 from flask import Flask, render_template, request, redirect, url_for, session, flash
-import sqlite3
 
 app = Flask(__name__)
 app.secret_key = 'clave_secreta_azul'
 
 def get_db_connection():
-    conn = sqlite3.connect('eco_reto_azul.db')
-    conn.row_factory = sqlite3.Row
+    database_url = os.environ.get('DATABASE_URL')
+    # Se conecta a Neon (PostgreSQL) usando DictCursor para mantener la compatibilidad con nombres de columnas
+    conn = psycopg2.connect(database_url, sslmode='require', cursor_factory=psycopg2.extras.DictCursor)
     return conn
 
 
 def init_db():
     conn = get_db_connection()
-    conn.execute('''
+    cur = conn.cursor()
+    
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS usuarios (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             usuario TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
         )
     ''')
-    conn.execute('''
+    cur.execute('''
         CREATE TABLE IF NOT EXISTS acciones (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             id_usuario INTEGER,
             fecha TEXT NOT NULL,
             tipo TEXT NOT NULL,
@@ -30,13 +35,16 @@ def init_db():
             FOREIGN KEY (id_usuario) REFERENCES usuarios(id)
         )
     ''')
+    conn.commit()
    
     try:
-        conn.execute("INSERT INTO usuarios (usuario, password) VALUES ('estudiante', '1234')")
+        cur.execute("INSERT INTO usuarios (usuario, password) VALUES ('estudiante', '1234')")
         conn.commit()
-    except sqlite3.IntegrityError:
-        pass
-    conn.close()
+    except Exception:
+        conn.rollback()  # Necesario en PostgreSQL si ocurre un conflicto de unicidad
+    finally:
+        cur.close()
+        conn.close()
 
 
 @app.route('/', methods=['GET', 'POST'])
@@ -46,7 +54,10 @@ def login():
         password = request.form['password']
         
         conn = get_db_connection()
-        user = conn.execute('SELECT * FROM usuarios WHERE usuario = ? AND password = ?', (usuario, password)).fetchone()
+        cur = conn.cursor()
+        cur.execute('SELECT * FROM usuarios WHERE usuario = %s AND password = %s', (usuario, password))
+        user = cur.fetchone()
+        cur.close()
         conn.close()
         
         if user:
@@ -65,8 +76,11 @@ def dashboard():
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    acciones = conn.execute('SELECT * FROM acciones WHERE id_usuario = ? ORDER BY fecha DESC', (session['user_id'],)).fetchall()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM acciones WHERE id_usuario = %s ORDER BY fecha DESC', (session['user_id'],))
+    acciones = cur.fetchall()
     total_acciones = len(acciones)
+    cur.close()
     conn.close()
     
     return render_template('dashboard.html', acciones=acciones, total_acciones=total_acciones)
@@ -83,9 +97,11 @@ def nueva_accion():
         impacto = request.form['impacto']
         
         conn = get_db_connection()
-        conn.execute('INSERT INTO acciones (id_usuario, tipo, descripcion, fecha, impacto) VALUES (?, ?, ?, ?, ?)',
-                     (session['user_id'], tipo, descripcion, fecha, impacto))
+        cur = conn.cursor()
+        cur.execute('INSERT INTO acciones (id_usuario, tipo, descripcion, fecha, impacto) VALUES (%s, %s, %s, %s, %s)',
+                    (session['user_id'], tipo, descripcion, fecha, impacto))
         conn.commit()
+        cur.close()
         conn.close()
         return redirect(url_for('dashboard'))
         
@@ -97,7 +113,9 @@ def editar_accion(id):
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    accion = conn.execute('SELECT * FROM acciones WHERE id = ? AND id_usuario = ?', (id, session['user_id'])).fetchone()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM acciones WHERE id = %s AND id_usuario = %s', (id, session['user_id']))
+    accion = cur.fetchone()
     
     if request.method == 'POST':
         tipo = request.form['tipo']
@@ -105,12 +123,14 @@ def editar_accion(id):
         fecha = request.form['fecha']
         impacto = request.form['impacto']
         
-        conn.execute('UPDATE acciones SET tipo = ?, descripcion = ?, fecha = ?, impacto = ? WHERE id = ?',
-                     (tipo, descripcion, fecha, impacto, id))
+        cur.execute('UPDATE acciones SET tipo = %s, descripcion = %s, fecha = %s, impacto = %s WHERE id = %s',
+                    (tipo, descripcion, fecha, impacto, id))
         conn.commit()
+        cur.close()
         conn.close()
         return redirect(url_for('dashboard'))
         
+    cur.close()
     conn.close()
     return render_template('editar_accion.html', accion=accion)
 
@@ -120,7 +140,10 @@ def detalle_accion(id):
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    accion = conn.execute('SELECT * FROM acciones WHERE id = ? AND id_usuario = ?', (id, session['user_id'])).fetchone()
+    cur = conn.cursor()
+    cur.execute('SELECT * FROM acciones WHERE id = %s AND id_usuario = %s', (id, session['user_id']))
+    accion = cur.fetchone()
+    cur.close()
     conn.close()
     
     return render_template('detalle_accion.html', accion=accion)
@@ -131,8 +154,10 @@ def eliminar_accion(id):
         return redirect(url_for('login'))
         
     conn = get_db_connection()
-    conn.execute('DELETE FROM acciones WHERE id = ? AND id_usuario = ?', (id, session['user_id']))
+    cur = conn.cursor()
+    cur.execute('DELETE FROM acciones WHERE id = %s AND id_usuario = %s', (id, session['user_id']))
     conn.commit()
+    cur.close()
     conn.close()
     return redirect(url_for('dashboard'))
 
